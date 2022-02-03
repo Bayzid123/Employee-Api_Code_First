@@ -17,14 +17,14 @@ namespace Employee_Api.Controllers
         }
 
         [HttpGet]
-        [Route("Get All Employee Details")]
+        [Route("GetAllEmployeeDetails")]
         public async Task<ActionResult<List<Employee>>> GetEmployee()
         {
             return await _employee.GetEmployee();
         }
 
         [HttpGet]
-        [Route("Get Employee by Id")]
+        [Route("GetEmployeebyId")]
 
         public async Task<ActionResult<Employee>> GetEmployeeById(int id)
         {
@@ -39,7 +39,7 @@ namespace Employee_Api.Controllers
         }
 
         [HttpPost]
-        [Route("Create a New Employee")]
+        [Route("CreateNewEmployee")]
 
         public async Task<ActionResult<Employee>> CreateEmployee(Employee employee)
         {
@@ -54,7 +54,7 @@ namespace Employee_Api.Controllers
         }
 
         [HttpPut]
-        [Route("Update Employee Details")]
+        [Route("UpdateEmployeeDetails")]
 
         public async Task<ActionResult<Employee>> UpdateEmployee(Employee employee)
         {
@@ -69,7 +69,7 @@ namespace Employee_Api.Controllers
         }
 
         [HttpDelete]
-        [Route("Delete Employee")]
+        [Route("DeleteEmployee")]
 
         public async Task<string> DeleteEmployee(int id)
         {
@@ -78,6 +78,21 @@ namespace Employee_Api.Controllers
                 return await _employee.DeleteEmployee(id);
             }
             catch(Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        [HttpPost]
+        [Route("SaveButtonApi")]
+
+        public async Task<ActionResult<string>> SaveEmployee(List<Employee> employee)
+        {
+            try
+            {
+                return await _employee.SaveEmployee(employee);
+            }
+            catch (Exception ex)
             {
                 throw ex;
             }

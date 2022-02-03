@@ -1,8 +1,10 @@
 ﻿using Employee_Api.Data;
+using Employee_Api.DTO;
 using Employee_Api.Interfaces;
 using Employee_Api.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Linq;
 
 namespace Employee_Api.Implementations
 {
@@ -49,6 +51,7 @@ namespace Employee_Api.Implementations
                     Name = employee.Name,
                     Age = employee.Age,
                     Designation = employee.Designation,
+                    IsActive = employee.IsActive,
                 };
                 _context.Add(createEmployee);
                 await _context.SaveChangesAsync();
@@ -66,12 +69,14 @@ namespace Employee_Api.Implementations
         {
             try
             {
-                var updateEmployee = await _context.Employees.FindAsync(employee.Id);
+                var updateEmployee = await _context.Employees.Where(x => x.Id == employee.Id).FirstOrDefaultAsync();
                 if (updateEmployee == null)
                     throw new Exception("Employee Not Found");
                 updateEmployee.Name = employee.Name;
                 updateEmployee.Age = employee.Age;
                 updateEmployee.Designation = employee.Designation;
+                updateEmployee.IsActive = employee.IsActive;
+
                 await _context.SaveChangesAsync();
                 return updateEmployee;
             }
@@ -95,6 +100,61 @@ namespace Employee_Api.Implementations
                 await _context.SaveChangesAsync();
 
                 return "Delete Successfully";
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        //Save Button Api
+
+        public async Task<ActionResult<string>> SaveEmployee(List<Employee> employee)
+        {
+            try
+            {
+
+                var itemList = new List<Employee>();
+                foreach (var item in employee)
+                {
+                    if (item.Id > 0)
+                    {
+
+                        var updateEmployee = await _context.Employees.Where(x => x.Id == item.Id).FirstOrDefaultAsync();
+
+                        updateEmployee.Name = item.Name;
+                        updateEmployee.Age = item.Age;
+                        updateEmployee.Designation = item.Designation;
+
+                        _context.Employees.Update(updateEmployee);
+                        await _context.SaveChangesAsync();
+                    }
+                    else
+                    {
+                        var createEmployee = new Employee
+                        {
+                            Name = item.Name,
+                            Age = item.Age,
+                            Designation = item.Designation,
+                            IsActive = true,
+                        };
+                        itemList.Add(createEmployee);
+                    }
+                }
+
+                var inactiveList = (from e in _context.Employees
+                                    where !employee.Select(x => x.Id).ToList().Contains(e.Id)
+                                    select e).ToList();
+
+                inactiveList.ForEach(x => { x.IsActive = false; });
+
+                _context.Employees.UpdateRange(inactiveList);
+                await _context.SaveChangesAsync();
+
+
+                await _context.Employees.AddRangeAsync(itemList);
+                await _context.SaveChangesAsync();
+                return "success";
             }
             catch (Exception ex)
             {

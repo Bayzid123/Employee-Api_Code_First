@@ -10,5 +10,6 @@ namespace Employee_Api.Interfaces
         public Task<ActionResult<Employee>> CreateEmployee(Employee employee);
         public Task<ActionResult<Employee>> UpdateEmployee(Employee employee);
         public Task<string> DeleteEmployee(int id);
+        public Task<ActionResult<string>> SaveEmployee(List<Employee> employee);
     }
 }

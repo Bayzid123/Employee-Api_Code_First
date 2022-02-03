@@ -1,6 +1,6 @@
-﻿namespace Employee_Api.Models
+﻿namespace Employee_Api.DTO
 {
-    public class Employee
+    public class EmployeeDTO
     {
         public int Id { get; set; }
         public string Name { get; set; }
@@ -8,5 +8,4 @@
         public string Designation { get; set; }
         public bool IsActive { get; set; }
     }
-
 }
