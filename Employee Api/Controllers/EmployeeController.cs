@@ -1,7 +1,10 @@
-﻿using Employee_Api.Interfaces;
+﻿using Employee_Api.Helper;
+using Employee_Api.Interfaces;
 using Employee_Api.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
+using System.Data;
 
 namespace Employee_Api.Controllers
 {
@@ -95,6 +98,54 @@ namespace Employee_Api.Controllers
             catch (Exception ex)
             {
                 throw ex;
+            }
+        }
+
+
+        [HttpGet]
+        [Route("GetAllEmployeesBySP")]
+
+        public async Task<IActionResult> GetEmployees()
+        {
+            try
+            {
+                string jsonString = JsonConvert.SerializeObject(await Task.FromResult(_employee.GetEmployees()));
+                return Ok(jsonString);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        [HttpPost]
+        [Route("UpdateEmployeeBySP")]
+        public async Task<ActionResult> Update(Employee employee)
+        {
+            try
+            {
+                var res = JsonConvert.SerializeObject(await _employee.Update(employee)); ;
+                return Ok(res);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        [HttpDelete]
+        [Route("DeleteEmployeeBySP")]
+
+        public async Task<ActionResult> Delete(int Id)
+        {
+            try
+            {
+                var res = JsonConvert.SerializeObject(await _employee.Delete(Id));
+                return Ok(res);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
             }
         }
     }

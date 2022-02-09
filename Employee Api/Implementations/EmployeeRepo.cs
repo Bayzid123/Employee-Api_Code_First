@@ -1,9 +1,12 @@
 ﻿using Employee_Api.Data;
 using Employee_Api.DTO;
+using Employee_Api.Helper;
 using Employee_Api.Interfaces;
 using Employee_Api.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using System.Data;
 using System.Linq;
 
 namespace Employee_Api.Implementations
@@ -11,6 +14,9 @@ namespace Employee_Api.Implementations
     public class EmployeeRepo : IEmployee
     {
         private readonly EmployeeContext _context;
+
+        DataTable dt = new DataTable();
+
 
         public EmployeeRepo(EmployeeContext context)
         {
@@ -160,6 +166,111 @@ namespace Employee_Api.Implementations
             {
                 throw ex;
             }
+        }
+
+
+        ////Store Procedure//////
+        public DataTable GetEmployees()
+        {
+
+            try
+            {
+
+                using (var connection = new SqlConnection
+                    ("server=DESKTOP-TFFNGL1\\SQLEXPRESS;database=EmployeeCrud;trusted_connection=true;"))
+                {
+                    string sql = "dbo.GetEmployees";
+                    using (SqlCommand sqlCmd = new SqlCommand(sql, connection))
+                    {
+                        sqlCmd.CommandType = CommandType.StoredProcedure;
+                        connection.Open();
+                        using (SqlDataAdapter sqlAdapter = new SqlDataAdapter(sqlCmd))
+                        {
+                            sqlAdapter.Fill(dt);
+                        }
+                        connection.Close();
+                    }
+                }
+                return dt;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public async Task<DataTable> Update(Employee employee)
+        {
+            try
+            {
+                using (var connection = new SqlConnection
+                    ("server=DESKTOP-TFFNGL1\\SQLEXPRESS;database=EmployeeCrud;trusted_connection=true;"))
+                {
+                    string sql = "dbo.UpdateEmployee";
+                    using (SqlCommand sqlCmd = new SqlCommand(sql, connection))
+                    {
+                        sqlCmd.CommandType = CommandType.StoredProcedure;
+                        sqlCmd.Parameters.AddWithValue("@Id", employee.Id);
+                        sqlCmd.Parameters.AddWithValue("@Name", employee.Name);
+                        sqlCmd.Parameters.AddWithValue("@Age", employee.Age);
+                        sqlCmd.Parameters.AddWithValue("@Designation", employee.Designation);
+                        sqlCmd.Parameters.AddWithValue("@IsActive", employee.IsActive);
+
+                        SqlParameter outputParameter = new SqlParameter();
+                        outputParameter.ParameterName = "@msg";
+                        outputParameter.SqlDbType = System.Data.SqlDbType.VarChar;
+                        outputParameter.Size = int.MaxValue;
+                        outputParameter.Direction = System.Data.ParameterDirection.Output;
+                        sqlCmd.Parameters.Add(outputParameter);
+                        connection.Open();
+                        sqlCmd.ExecuteNonQuery();
+                        var msg = outputParameter.Value.ToString();
+                        //connection.Open();
+                        using (SqlDataAdapter sqlAdapter = new SqlDataAdapter(sqlCmd))
+                        {
+                            sqlAdapter.Fill(dt);
+                        }
+                        connection.Close();
+                        
+                    }
+                }
+                return dt;
+
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+
+        }
+
+        public async Task<DataTable> Delete(int Id)
+        {
+            try
+            {
+                using (var connection = new SqlConnection
+                    ("server=DESKTOP-TFFNGL1\\SQLEXPRESS;database=EmployeeCrud;trusted_connection=true;"))
+                {
+                    string sql = "dbo.DeleteEmployee";
+                    using (SqlCommand sqlCmd = new SqlCommand(sql, connection))
+                    {
+                        sqlCmd.CommandType = CommandType.StoredProcedure;
+                        sqlCmd.Parameters.AddWithValue("@Id", Id);
+                        connection.Open();
+                        using (SqlDataAdapter sqlAdapter = new SqlDataAdapter(sqlCmd))
+                        {
+                            sqlAdapter.Fill(dt);
+                        }
+                        connection.Close();
+                    }
+                }
+                return dt;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
         }
     }
 }
