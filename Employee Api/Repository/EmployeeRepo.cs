@@ -42,7 +42,7 @@ namespace Employee_Api.Implementations
             }
             catch (Exception ex)
             {
-                throw ex;
+                throw;
             }
         }
 
@@ -65,7 +65,7 @@ namespace Employee_Api.Implementations
             }
             catch (Exception ex)
             {
-                throw ex;
+                throw;
             }
         }
 
